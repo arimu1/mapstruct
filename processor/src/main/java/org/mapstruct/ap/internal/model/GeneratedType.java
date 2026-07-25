@@ -284,23 +284,29 @@ public abstract class GeneratedType extends ModelElement {
             return false;
         }
 
-        if ( typeToAdd.getPackageName() != null ) {
-            if ( typeToAdd.getPackageName().equals( JAVA_LANG_PACKAGE ) ) {
-                // only the types in the java.lang package are implicitly imported, the packages under java.lang
-                // like java.lang.management are not.
-                return false;
-            }
+        String typePackageName = typeToAdd.getPackageName();
 
-            if ( typeToAdd.getPackageName().equals( packageName ) ) {
-                if ( typeToAdd.getTypeElement() != null ) {
-                    if ( !typeToAdd.getTypeElement().getNestingKind().isNested() ) {
-                        return false;
-                    }
+        // Types in the unnamed package cannot be imported (JLS §7.5).
+        // Nested types there used to produce invalid imports like `import Outer.Nested`.
+        if ( typePackageName == null || typePackageName.isEmpty() ) {
+            return false;
+        }
+
+        if ( typePackageName.equals( JAVA_LANG_PACKAGE ) ) {
+            // only the types in the java.lang package are implicitly imported, the packages under java.lang
+            // like java.lang.management are not.
+            return false;
+        }
+
+        if ( typePackageName.equals( packageName ) ) {
+            if ( typeToAdd.getTypeElement() != null ) {
+                if ( !typeToAdd.getTypeElement().getNestingKind().isNested() ) {
+                    return false;
                 }
-                else if ( typeToAdd.getComponentType() != null ) {
-                    if ( !typeToAdd.getComponentType().getTypeElement().getNestingKind().isNested() ) {
-                        return false;
-                    }
+            }
+            else if ( typeToAdd.getComponentType() != null ) {
+                if ( !typeToAdd.getComponentType().getTypeElement().getNestingKind().isNested() ) {
+                    return false;
                 }
             }
         }

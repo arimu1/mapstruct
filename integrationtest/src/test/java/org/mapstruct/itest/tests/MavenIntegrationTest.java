@@ -170,7 +170,7 @@ public class MavenIntegrationTest {
     void simpleTest() {
     }
 
-    // for issue #2593
+    // for issues #2593 and #2435 (nested types in the unnamed package)
     @ProcessorTest(baseDir = "defaultPackage")
     void defaultPackageTest() {
     }

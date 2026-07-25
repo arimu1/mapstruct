@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 /**
+ * Nested types and mappers in the unnamed package (issues #2593, #2435).
+ *
  * @author Filip Hrisafov
  */
 public class DefaultPackageObject {
