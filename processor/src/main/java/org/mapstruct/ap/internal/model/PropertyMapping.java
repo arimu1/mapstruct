@@ -258,6 +258,9 @@ public class PropertyMapping extends ModelElement {
             );
 
             // forge a method instead of resolving one when there are mapping options.
+            // Exception (#4094): when nested target options are only ignores, prefer an existing
+            // mapping method (e.g. from Mapper#uses). Nested-only ignores must not force an empty
+            // forged method under BeanMapping#ignoreByDefault, silently dropping data.
             Assignment assignment = null;
             if ( forgeMethodWithMappingReferences == null ) {
                 assignment = ctx.getMappingResolver().getTargetAssignment(
@@ -270,6 +273,21 @@ public class PropertyMapping extends ModelElement {
                     positionHint,
                     this::forge
                 );
+            }
+            else if ( forgeMethodWithMappingReferences.containsOnlyIgnoreMappings() ) {
+                assignment = ctx.getMappingResolver().getTargetAssignment(
+                    method,
+                    getForgedMethodHistory( rightHandSide ),
+                    targetType,
+                    formattingParameters,
+                    criteria,
+                    rightHandSide,
+                    positionHint,
+                    this::forge
+                );
+                if ( assignment == null ) {
+                    assignment = forge();
+                }
             }
             else {
                 assignment = forge();
