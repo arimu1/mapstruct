@@ -64,6 +64,26 @@ public class Issue4094Test {
     }
 
     @ProcessorTest
+    @WithClasses(Issue4094SameTypeMapper.class)
+    public void sameTypeNestedIgnoreMustNotDirectAssignWholeObject() {
+        Issue4094SameTypeMapper.Person person = new Issue4094SameTypeMapper.Person();
+        person.setName( "Dana" );
+        person.setRelatedInformation( "must-be-ignored" );
+
+        Issue4094SameTypeMapper.Holder source = new Issue4094SameTypeMapper.Holder();
+        source.setRelatedPerson( person );
+
+        Issue4094SameTypeMapper.Holder dto = Issue4094SameTypeMapper.INSTANCE.toDto( source );
+
+        assertThat( dto.getRelatedPerson() ).isNotNull();
+        assertThat( dto.getRelatedPerson().getName() ).isEqualTo( "Dana" );
+        // nested ignore must apply — direct same-type assign would copy relatedInformation
+        assertThat( dto.getRelatedPerson().getRelatedInformation() ).isNull();
+        // source still has the field; dto must not share the instance with secret data
+        assertThat( dto.getRelatedPerson() ).isNotSameAs( person );
+    }
+
+    @ProcessorTest
     @WithClasses(Issue4094WithoutUsesMapper.class)
     public void withoutUsesMapperStillMapsSameNamedPropertiesInsteadOfEmptyForgedMethod() {
         Issue4094WithoutUsesMapper.Person person = new Issue4094WithoutUsesMapper.Person();
